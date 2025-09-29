@@ -33,6 +33,8 @@ const carrot = {
 
 // Obstacles array
 let obstacles = [];
+let consecutiveObstacles = 0; // Track consecutive obstacles
+let lastObstacleX = 0; // Track position of last obstacle
 
 // Ground level
 const ground = canvas.height - 10;
@@ -42,6 +44,8 @@ function init() {
     score = 0;
     gameSpeed = 5;
     obstacles = [];
+    consecutiveObstacles = 0;
+    lastObstacleX = 0;
     rabbit.y = canvas.height - 50;
     rabbit.jumping = false;
     rabbit.jumpVelocity = 0;
@@ -93,15 +97,37 @@ function drawGround() {
 
 // Create new obstacle
 function createObstacle() {
+    // Limit consecutive obstacles to ensure gaps for jumping
+    if (consecutiveObstacles >= 3) {
+        // Force a gap by skipping obstacle creation
+        consecutiveObstacles = 0;
+        return;
+    }
+    
+    // Ensure minimum gap between obstacles
+    const minGap = 30;
+    const currentX = canvas.width;
+    
+    // If this isn't the first obstacle, ensure there's a gap
+    if (lastObstacleX > 0) {
+        const distanceFromLast = currentX - lastObstacleX;
+        if (distanceFromLast < minGap) {
+            // Not enough space, skip creating obstacle
+            return;
+        }
+    }
+    
     const height = Math.random() * 30 + 20;
     const obstacle = {
-        x: canvas.width,
+        x: currentX,
         y: ground - height,
         width: 20,
         height: height,
         passed: false
     };
     obstacles.push(obstacle);
+    consecutiveObstacles++;
+    lastObstacleX = currentX;
 }
 
 // Draw obstacles
@@ -125,11 +151,28 @@ function updateObstacles() {
     });
     
     // Remove obstacles that are off screen
+    const initialLength = obstacles.length;
     obstacles = obstacles.filter(obstacle => obstacle.x + obstacle.width > 0);
     
-    // Create new obstacles randomly
-    if (Math.random() < 0.02) {
+    // Reset consecutive counter when obstacles are removed (gap created)
+    if (obstacles.length < initialLength) {
+        consecutiveObstacles = 0;
+    }
+    
+    // Update lastObstacleX to track the rightmost obstacle
+    if (obstacles.length > 0) {
+        lastObstacleX = Math.max(...obstacles.map(obs => obs.x));
+    } else {
+        lastObstacleX = 0;
+    }
+    
+    // Create new obstacles with controlled frequency
+    // Only create new obstacles occasionally to ensure gaps
+    if (Math.random() < 0.02 && consecutiveObstacles < 3) {
         createObstacle();
+    } else if (Math.random() < 0.01) {
+        // Occasionally force a gap to reset the pattern
+        consecutiveObstacles = 0;
     }
     
     // Update score when passing obstacles
