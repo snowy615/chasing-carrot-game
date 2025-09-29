@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rabbit Chase - Endless Runner Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="game-container">
+        <canvas id="gameCanvas" width="800" height="300"></canvas>
+        <div class="game-ui">
+            <div class="score">Score: <span id="score">0</span></div>
+            <div class="instructions">
+                <p>Press SPACE or UP ARROW to jump and avoid obstacles!</p>
+            </div>
+            <div class="game-over" id="gameOver">
+                <h2>Game Over!</h2>
+                <p>Your score: <span id="finalScore">0</span></p>
+                <button id="restartBtn">Play Again</button>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
